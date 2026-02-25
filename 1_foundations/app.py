@@ -74,10 +74,22 @@ tools = [{"type": "function", "function": record_user_details_json},
 
 
 class Me:
-
     def __init__(self):
-        self.openai = OpenAI()
-        self.name = "Ed Donner"
+        # Fetch the key
+        google_api_key = os.getenv("GOOGLE_API_KEY")
+        
+        # Check if the key exists before initializing
+        if not google_api_key:
+            raise ValueError("GOOGLE_API_KEY is not set in Hugging Face Secrets")
+
+        # Initialize the client
+        self.gemini = OpenAI(
+            base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            api_key=google_api_key
+        )
+        
+        self.name = "Maaz Masood"
+        # ... rest of your code
         reader = PdfReader("me/linkedin.pdf")
         self.linkedin = ""
         for page in reader.pages:
@@ -116,7 +128,7 @@ If the user is engaging in discussion, try to steer them towards getting in touc
         messages = [{"role": "system", "content": self.system_prompt()}] + history + [{"role": "user", "content": message}]
         done = False
         while not done:
-            response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages, tools=tools)
+            response = self.gemini.chat.completions.create(model="gemini-2.5-flash-lite", messages=messages, tools=tools)
             if response.choices[0].finish_reason=="tool_calls":
                 message = response.choices[0].message
                 tool_calls = message.tool_calls
