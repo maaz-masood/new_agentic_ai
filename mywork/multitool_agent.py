@@ -5,7 +5,7 @@ import asyncio
 from datetime import datetime
 import random
 import gradio as gr
-from agents import Agent, Runner, function_tool
+from agents import Agent, Runner, function_tool, trace
 
 load_dotenv()
 openai_key=os.getenv("OPENAI_API_KEY")   
@@ -44,8 +44,9 @@ from agents import Runner
 
 
 async def chat(message, history):
-    result = await Runner.run(agent, message)
-    return result.final_output
+    with trace("Personal Assistant Run"):
+        result = await Runner.run(agent, message)
+        return result.final_output
 
 gr.ChatInterface(
     fn=chat,
