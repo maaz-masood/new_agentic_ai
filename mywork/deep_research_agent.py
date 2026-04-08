@@ -82,10 +82,72 @@ async def research_ui(topic):
     except Exception as e:
         return f"Research failed: {str(e)}"
 
-gr.Interface(
-    fn=research_ui,
-    inputs=gr.Textbox(label="Research Topic"),
-    outputs=gr.Markdown(label="Research Report"),
-    title="Deep Research Agent",
-    description="Enter any topic to get a comprehensive research report"
-).launch(inbrowser=True)
+import time
+
+research_cache = {}
+
+async def research_ui(topic):
+    if topic.lower() in research_cache:
+        return research_cache[topic.lower()]
+    
+    try:
+        start = time.time()
+        with trace("Deep Research"):
+            report = await deep_research(topic)
+            elapsed = time.time() - start
+            
+            output = f"# {report.title}\n\n"
+            output += f"## 📋 Summary\n{report.summary}\n\n"
+            output += f"## 🔍 Key Findings\n"
+            for finding in report.key_findings:
+                output += f"- {finding}\n"
+            output += f"\n## 🎯 Conclusion\n{report.conclusion}"
+            output += f"\n\n---\n⏱ *Research completed in {elapsed:.1f} seconds using 5 parallel searches*"
+            
+            research_cache[topic.lower()] = output
+            return output
+    except Exception as e:
+        return f"❌ Research failed: {str(e)}"
+
+with gr.Blocks(title="Deep Research Agent", theme=gr.themes.Soft()) as demo:
+    gr.Markdown("# 🔬 Deep Research Agent")
+    gr.Markdown("*Powered by GPT-4o-mini • 5 parallel web searches • Real-time data*")
+    
+    with gr.Row():
+        topic_input = gr.Textbox(
+            label="Research Topic",
+            placeholder="e.g. Impact of AI on healthcare...",
+            scale=4
+        )
+        submit_btn = gr.Button(
+            "🔍 Research",
+            scale=1,
+            variant="primary"
+        )
+    
+    with gr.Row():
+        clear_btn = gr.Button("🗑 Clear", scale=1)
+    
+    output = gr.Markdown(label="Research Report")
+    
+    gr.Examples(
+        examples=[
+            ["Impact of AI on healthcare"],
+            ["Future of electric vehicles"],
+            ["Quantum computing applications"],
+        ],
+        inputs=topic_input
+    )
+    
+    submit_btn.click(
+        fn=research_ui,
+        inputs=topic_input,
+        outputs=output
+    )
+    clear_btn.click(
+        fn=lambda: ("", ""),
+        inputs=None,
+        outputs=[topic_input, output]
+    )
+
+demo.launch(inbrowser=True)

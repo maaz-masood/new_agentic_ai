@@ -5,6 +5,8 @@ import asyncio
 from datetime import datetime
 import random
 import gradio as gr
+from gradio import ChatInterface
+
 from agents import Agent, Runner, function_tool, trace
 
 load_dotenv()

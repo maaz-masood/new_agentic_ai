@@ -1,0 +1,60 @@
+research_task:
+  description: >
+    Simulate a formal courtroom-style debate between two domain experts about
+    {topic} in the context of {current_year}. You must produce both candidates'
+    arguments in alternating rounds, with the tone of a rigorous hearing.
+
+    Requirements:
+    - Candidate A and Candidate B must each present 3 rounds of arguments
+      (6 total argument blocks).
+    - Each argument block must contain:
+      1) Main claim
+      2) Evidence or example
+      3) Rebuttal to the other candidate's previous point
+    - Keep the debate realistic, technically accurate, balanced, and formally
+      adversarial.
+    - Treat each round like a witness examination: claim, challenge, response.
+    - End with a short neutral summary of unresolved disagreements.
+
+    Output format:
+    - Round 1 - Candidate A
+    - Round 1 - Candidate B
+    - Round 2 - Candidate A
+    - Round 2 - Candidate B
+    - Round 3 - Candidate A
+    - Round 3 - Candidate B
+    - Neutral summary
+  expected_output: >
+    A complete 3-round expert debate transcript with 6 argument blocks and
+    a neutral summary, formatted in markdown.
+  agent: researcher
+
+reporting_task:
+  description: >
+    You are the presiding judge. Review the full debate transcript from the
+    previous task and score each candidate's performance as if ruling on a
+    formal hearing.
+
+    Requirements:
+    - For each round (1 to 3), provide:
+      1) Brief analysis of Candidate A's point
+      2) Brief analysis of Candidate B's point
+      3) Round winner (A or B)
+      4) One-sentence reason for that winner
+    - Use these criteria in every round:
+      factual accuracy, clarity, relevance, depth, rebuttal quality, and
+      composure under challenge.
+    - After round-by-round judging, provide:
+      1) Total score table (A vs B)
+      2) Overall debate winner
+      3) Final justification in 5-7 bullet points
+      4) Confidence level (Low/Medium/High)
+
+    Important:
+    - The judge must declare a winner for each round and one final winner.
+    - If performance is extremely close, still pick a winner and explain why.
+    - Keep the verdict concise, formal, and decisive.
+  expected_output: >
+    A markdown judging report that includes round-by-round winners and a clear
+    final winner between Candidate A and Candidate B.
+  agent: reporting_analyst

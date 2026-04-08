@@ -4,9 +4,6 @@ from crewai_tools import SerperDevTool
 from pydantic import BaseModel, Field
 from typing import List
 from .tools.push_tool import PushNotificationTool
-from crewai.memory import LongTermMemory, ShortTermMemory, EntityMemory
-from crewai.memory.storage.rag_storage import RAGStorage
-from crewai.memory.storage.ltm_sqlite_storage import LTMSQLiteStorage
 
 class TrendingCompany(BaseModel):
     """ A company that is in the news and attracting attention """
@@ -86,40 +83,9 @@ class StockPicker():
             
         return Crew(
             agents=self.agents,
-            tasks=self.tasks, 
+            tasks=self.tasks,
             process=Process.hierarchical,
             verbose=True,
             manager_agent=manager,
             memory=True,
-            # Long-term memory for persistent storage across sessions
-            long_term_memory = LongTermMemory(
-                storage=LTMSQLiteStorage(
-                    db_path="./memory/long_term_memory_storage.db"
-                )
-            ),
-            # Short-term memory for current context using RAG
-            short_term_memory = ShortTermMemory(
-                storage = RAGStorage(
-                        embedder_config={
-                            "provider": "openai",
-                            "config": {
-                                "model": 'text-embedding-3-small'
-                            }
-                        },
-                        type="short_term",
-                        path="./memory/"
-                    )
-                ),            # Entity memory for tracking key information about entities
-            entity_memory = EntityMemory(
-                storage=RAGStorage(
-                    embedder_config={
-                        "provider": "openai",
-                        "config": {
-                            "model": 'text-embedding-3-small'
-                        }
-                    },
-                    type="short_term",
-                    path="./memory/"
-                )
-            ),
         )
